@@ -1,0 +1,91 @@
+############################
+#  📦 Node / React (Vite)  #
+############################
+# תלויות
+node_modules/
+# build outputs
+dist/
+build/
+# Vite cache
+.vite/
+# CRA cache
+.cache/
+# Next / Nuxt
+.next/
+.nuxt/
+# Storybook
+.storybook-static/
+
+####################
+#  🗄 Logs & debug #
+####################
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+logs/
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+############################
+#  🔐 Environment secrets  #
+############################
+.env
+.env.*
+!.env.example
+
+####################
+#  🧹 Misc runtime #
+####################
+# Coverage reports
+coverage/
+# Parcel cache
+.parcel-cache/
+# TypeScript
+*.tsbuildinfo
+# Cypress / Playwright
+cypress/videos/
+cypress/screenshots/
+playwright-report/
+# Svelte / Astro / Remix cache
+.svelte-kit/
+.output/
+.netlify/
+.vercel/
+
+##########################
+#  💻 IDE / OS metadata  #
+##########################
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+# Linux
+*~
+# Windows shortcuts / metadata
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+# JetBrains IDEs
+.idea/
+#.idea/**/workspace.xml
+#.idea/**/tasks.xml
+#.idea/**/usage.statistics.xml
+#.idea/**/dictionaries
+# VSCode
+.vscode/*
+!.vscode/extensions.json
+# Vim / Emacs / Sublime
+*.swp
+*.swo
+*.swn
+*.swn
+*.tmp
+*.bak
+*.backup
+*.orig
+*.kate-swp
