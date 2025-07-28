@@ -10,10 +10,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Rate limiting ליצירת inbox
+// Rate limiting ליצירת inbox (יותר מתון)
 const createInboxLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 דקות
-  max: 5, // מקסימום 5 inbox חדשים ל-IP
+  max: 10, // מקסימום 10 inbox חדשים ל-IP (במקום 5)
   message: { error: "Too many inboxes created. Try again in 15 minutes." },
 });
 
