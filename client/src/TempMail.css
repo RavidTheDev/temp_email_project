@@ -1,15 +1,66 @@
-/* TempMail.css */
+/* TempMail.css - Full Screen Modern Design */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Global Reset - Force Full Screen */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+/* Reset & Base - Full Screen */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
 
 /* Animations */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 @keyframes fadeInUp {
@@ -28,30 +79,39 @@
   to { opacity: 1; }
 }
 
-@keyframes pulse {
-  from { transform: scale(1); }
-  to { transform: scale(1.05); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-/* Main Container */
-.tempmail-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  position: relative;
-  overflow: hidden;
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Full Screen Container */
+.tempmail-container {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Subtle Background Pattern */
 .tempmail-background-pattern {
   position: absolute;
   top: 0;
@@ -59,130 +119,153 @@
   right: 0;
   bottom: 0;
   background-image: 
-    radial-gradient(circle at 25px 25px, rgba(255,255,255,0.1) 2px, transparent 0),
-    radial-gradient(circle at 75px 75px, rgba(255,255,255,0.05) 2px, transparent 0);
-  background-size: 100px 100px;
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 2px, transparent 2px);
+  background-size: 60px 60px;
   animation: float 20s ease-in-out infinite;
+  opacity: 0.6;
 }
 
+/* Content Container - Full Width */
 .tempmail-content {
   position: relative;
-  z-index: 1;
-  padding: 20px;
-  max-width: 900px;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
 .tempmail-header {
   text-align: center;
   margin-bottom: 40px;
-  animation: fadeInDown 1s ease-out;
+  animation: fadeInUp 0.8s ease-out;
 }
 
 .tempmail-title {
-  font-size: 3.5rem;
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 800;
   margin-bottom: 15px;
-  background: linear-gradient(45deg, #fff, #f0f8ff);
+  background: linear-gradient(135deg, #ffffff, #f0f8ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+  background-clip: text;
+  text-shadow: 2px 2px 15px rgba(0,0,0,0.3);
   letter-spacing: -0.02em;
 }
 
 .tempmail-subtitle {
-  font-size: 1.3rem;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
   color: rgba(255,255,255,0.9);
-  font-weight: 300;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  font-weight: 400;
+  text-shadow: 1px 1px 8px rgba(0,0,0,0.3);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
-/* Card */
+/* Glass Morphism Card */
 .tempmail-card {
-  background-color: rgba(255,255,255,0.95);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: 24px;
-  padding: 40px;
+  padding: clamp(30px, 5vw, 50px);
   margin-bottom: 30px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.1);
-  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 25px 50px rgba(0,0,0,0.1),
+    0 10px 25px rgba(0,0,0,0.05),
+    inset 0 1px 0 rgba(255,255,255,0.2);
   border: 1px solid rgba(255,255,255,0.2);
-  animation: fadeInUp 0.8s ease-out;
+  animation: fadeInUp 1s ease-out;
+  flex: 1;
 }
 
 /* Welcome Section */
 .tempmail-welcome {
   text-align: center;
-  padding: 60px 20px;
+  padding: clamp(40px, 8vw, 80px) 20px;
 }
 
 .tempmail-welcome-icon {
-  width: 120px;
-  height: 120px;
+  width: clamp(100px, 12vw, 140px);
+  height: clamp(100px, 12vw, 140px);
   margin: 0 auto 30px;
   padding: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
   color: white;
-  animation: pulse 2s ease-in-out infinite alternate;
+  animation: pulse 3s ease-in-out infinite;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
 .tempmail-welcome-title {
-  font-size: 2.2rem;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
   font-weight: 700;
   margin-bottom: 20px;
-  color: #2d3748;
+  color: rgba(255,255,255,0.95);
   letter-spacing: -0.01em;
 }
 
 .tempmail-welcome-text {
-  color: #718096;
-  margin-bottom: 40px;
+  color: rgba(255,255,255,0.8);
+  margin: 0 auto 40px;
   line-height: 1.8;
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.2vw, 1.1rem);
   max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
+  font-weight: 400;
 }
 
-/* Buttons */
+/* Modern Buttons */
 .tempmail-primary-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
   color: white;
-  padding: 16px 32px;
-  border: none;
+  padding: clamp(14px, 3vw, 18px) clamp(28px, 6vw, 40px);
+  border: 2px solid rgba(255,255,255,0.3);
   border-radius: 16px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
   transform: translateY(0);
-  min-width: 200px;
+  min-width: clamp(200px, 40vw, 280px);
   justify-content: center;
 }
 
 .tempmail-primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.5);
 }
 
 .tempmail-primary-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
+/* Secondary Buttons */
 .tempmail-btn {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
   color: white;
   padding: 12px 20px;
-  border: none;
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 12px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -191,25 +274,38 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 
 .tempmail-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.4);
 }
 
-.tempmail-btn-refresh { background-color: #48bb78; }
-.tempmail-btn-new { background-color: #9f7aea; }
-.tempmail-btn-debug { background-color: #f56565; }
+.tempmail-btn-refresh { 
+  background: rgba(72, 187, 120, 0.3);
+  border-color: rgba(72, 187, 120, 0.5);
+}
+.tempmail-btn-new { 
+  background: rgba(159, 122, 234, 0.3);
+  border-color: rgba(159, 122, 234, 0.5);
+}
+.tempmail-btn-debug { 
+  background: rgba(245, 101, 101, 0.3);
+  border-color: rgba(245, 101, 101, 0.5);
+}
 
 /* Email Container */
 .tempmail-email-container {
-  background: linear-gradient(135deg, #f7fafc, #edf2f7);
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(15px);
   padding: 30px;
   border-radius: 20px;
   margin-bottom: 30px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
 }
 
 .tempmail-email-header {
@@ -218,15 +314,16 @@
   align-items: center;
   margin-bottom: 20px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 15px;
 }
 
 .tempmail-email-label {
   font-weight: 700;
-  color: #2d3748;
+  color: rgba(255,255,255,0.95);
   font-size: 1.1rem;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .tempmail-timer {
@@ -234,45 +331,50 @@
   align-items: center;
   gap: 8px;
   font-size: 1rem;
-  color: #e53e3e;
+  color: #ff6b6b;
   font-weight: 600;
-  padding: 8px 16px;
-  background-color: rgba(229, 62, 62, 0.1);
+  padding: 10px 16px;
+  background: rgba(255, 107, 107, 0.2);
+  backdrop-filter: blur(10px);
   border-radius: 12px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.1);
 }
 
 .tempmail-email-input {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 15px;
   align-items: center;
-  flex-wrap: wrap;
 }
 
 .tempmail-email-address {
-  flex: 1;
-  min-width: 300px;
-  background-color: white;
-  padding: 16px 20px;
-  border: 2px solid #e2e8f0;
+  background: rgba(255,255,255,0.9);
+  padding: 18px 24px;
+  border: 2px solid rgba(255,255,255,0.3);
   border-radius: 16px;
-  font-size: 1.2rem;
-  font-family: "JetBrains Mono", "Fira Code", monospace;
-  font-weight: 500;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
   color: #2d3748;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
 }
 
 .tempmail-email-address:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  border-color: rgba(255,255,255,0.6);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.95);
 }
 
 .tempmail-copy-btn {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
   color: white;
-  padding: 16px 20px;
-  border: none;
+  padding: 18px 24px;
+  border: 2px solid rgba(255,255,255,0.3);
   border-radius: 16px;
   cursor: pointer;
   display: flex;
@@ -280,16 +382,24 @@
   gap: 8px;
   transition: all 0.3s ease;
   font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .tempmail-copy-btn-normal {
-  background-color: #667eea;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  background: rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.5);
 }
 
 .tempmail-copy-btn-copied {
-  background-color: #38a169;
-  box-shadow: 0 8px 25px rgba(56, 161, 105, 0.4);
+  background: rgba(56, 161, 105, 0.3);
+  border-color: rgba(56, 161, 105, 0.5);
+}
+
+.tempmail-copy-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.3);
 }
 
 /* Controls */
@@ -299,7 +409,7 @@
   align-items: center;
   margin-bottom: 30px;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 20px;
 }
 
 .tempmail-left-controls {
@@ -314,12 +424,255 @@
   align-items: center;
   gap: 10px;
   font-size: 0.95rem;
-  color: #4a5568;
+  color: rgba(255,255,255,0.9);
   font-weight: 500;
+  cursor: pointer;
 }
 
 .tempmail-checkbox input {
-  accent-color: #667eea;
+  accent-color: #8b5cf6;
+  transform: scale(1.2);
+}
+
+/* Search Container */
+.tempmail-search-container {
+  margin-bottom: 25px;
+}
+
+.tempmail-search-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 16px;
+  padding: 15px 20px;
+  gap: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.tempmail-search-input svg {
+  color: rgba(255,255,255,0.7);
+  flex-shrink: 0;
+}
+
+.tempmail-search-field {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: rgba(255,255,255,0.9);
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.tempmail-search-field::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+.tempmail-search-clear {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.8);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tempmail-search-clear:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* Message Actions */
+.tempmail-message-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.tempmail-message-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.tempmail-message-btn {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.9);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tempmail-message-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.tempmail-view-btn:hover {
+  background: rgba(72, 187, 120, 0.3);
+  border-color: rgba(72, 187, 120, 0.5);
+}
+
+.tempmail-delete-btn:hover {
+  background: rgba(245, 101, 101, 0.3);
+  border-color: rgba(245, 101, 101, 0.5);
+}
+
+/* Modal Styles */
+.tempmail-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.tempmail-modal {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.tempmail-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.1);
+}
+
+.tempmail-modal-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+  flex: 1;
+  margin-right: 20px;
+}
+
+.tempmail-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.tempmail-modal-btn {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #4a5568;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tempmail-modal-btn:hover {
+  background: #edf2f7;
+  transform: translateY(-1px);
+}
+
+.tempmail-modal-btn.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.tempmail-close-btn:hover {
+  background: #fed7d7;
+  border-color: #fc8181;
+  color: #c53030;
+}
+
+.tempmail-modal-info {
+  padding: 20px 25px;
+  background: #f7fafc;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  font-size: 0.95rem;
+  color: #4a5568;
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.tempmail-modal-content {
+  padding: 25px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.tempmail-text-content {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #2d3748;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.tempmail-html-content {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #2d3748;
+}
+
+.tempmail-html-content * {
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.tempmail-html-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.tempmail-html-content a {
+  color: #667eea;
+  text-decoration: underline;
+}
+
+.tempmail-html-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.tempmail-html-content td, .tempmail-html-content th {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
 }
 
 /* Messages */
@@ -327,40 +680,43 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
   margin-bottom: 25px;
-  color: #2d3748;
+  color: rgba(255,255,255,0.95);
 }
 
 .tempmail-messages-count {
-  background-color: #667eea;
+  background: rgba(139, 92, 246, 0.3);
+  backdrop-filter: blur(10px);
   color: white;
-  padding: 4px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
 }
 
 .tempmail-no-messages {
   text-align: center;
-  padding: 80px 20px;
-  color: #718096;
+  padding: clamp(60px, 10vw, 100px) 20px;
+  color: rgba(255,255,255,0.8);
 }
 
 .tempmail-no-messages-icon {
-  width: 80px;
-  height: 80px;
+  width: clamp(60px, 10vw, 80px);
+  height: clamp(60px, 10vw, 80px);
   margin: 0 auto 20px;
-  opacity: 0.3;
-  color: #cbd5e0;
+  opacity: 0.4;
+  color: rgba(255,255,255,0.6);
 }
 
 .tempmail-no-messages-title {
-  font-size: 1.3rem;
+  font-size: clamp(1.2rem, 3vw, 1.4rem);
   font-weight: 600;
   margin-bottom: 10px;
-  color: #4a5568;
+  color: rgba(255,255,255,0.9);
 }
 
 /* Message Cards */
@@ -371,20 +727,22 @@
 }
 
 .tempmail-message-card {
-  background: linear-gradient(135deg, #ffffff, #f8f9fa);
-  border: 1px solid #e2e8f0;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 20px;
   padding: 25px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
-  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out;
 }
 
 .tempmail-message-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-  border-color: #cbd5e0;
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  border-color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.15);
 }
 
 .tempmail-message-header {
@@ -401,27 +759,27 @@
 
 .tempmail-message-subject {
   font-weight: 700;
-  color: #2d3748;
+  color: rgba(255,255,255,0.95);
   margin-bottom: 8px;
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.2vw, 1.1rem);
   line-height: 1.4;
 }
 
 .tempmail-message-from {
   font-size: 0.95rem;
-  color: #718096;
+  color: rgba(255,255,255,0.75);
   font-weight: 500;
 }
 
 .tempmail-message-date {
   font-size: 0.85rem;
-  color: #a0aec0;
+  color: rgba(255,255,255,0.6);
   font-weight: 500;
   white-space: nowrap;
 }
 
 .tempmail-message-preview {
-  color: #718096;
+  color: rgba(255,255,255,0.7);
   font-size: 0.9rem;
   margin-top: 8px;
   line-height: 1.5;
@@ -432,14 +790,16 @@
 }
 
 .tempmail-message-content {
-  background-color: #f7fafc;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
   padding: 20px;
   border-radius: 16px;
   margin-top: 15px;
-  color: #4a5568;
+  color: rgba(255,255,255,0.9);
   line-height: 1.7;
   font-size: 0.95rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .tempmail-unread-indicator {
@@ -448,15 +808,17 @@
   right: 20px;
   width: 10px;
   height: 10px;
-  background-color: #e53e3e;
+  background: #ff6b6b;
   border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
 }
 
 /* Error */
 .tempmail-error {
-  background-color: #fed7d7;
-  border: 1px solid #fc8181;
-  color: #c53030;
+  background: rgba(254, 215, 215, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(252, 129, 129, 0.3);
+  color: #ff6b6b;
   padding: 20px;
   border-radius: 16px;
   margin-top: 20px;
@@ -464,6 +826,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  box-shadow: 0 10px 25px rgba(255, 107, 107, 0.1);
 }
 
 /* Footer */
@@ -473,37 +836,31 @@
   font-size: 0.95rem;
   margin-top: 30px;
   font-weight: 300;
+  padding: 20px;
 }
 
 /* Utilities */
 .tempmail-fade-in {
-  animation: fadeIn 0.5s ease-in;
+  animation: fadeInUp 0.6s ease-out;
 }
 
 .tempmail-spinning {
   animation: spin 1s linear infinite;
 }
 
-/* Responsive */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .tempmail-title {
-    font-size: 2.5rem;
-  }
-  
-  .tempmail-subtitle {
-    font-size: 1.1rem;
+  .tempmail-content {
+    padding: 15px;
   }
   
   .tempmail-card {
-    padding: 25px;
+    border-radius: 20px;
   }
   
   .tempmail-email-input {
-    flex-direction: column;
-  }
-  
-  .tempmail-email-address {
-    min-width: 100%;
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
   
   .tempmail-controls {
@@ -513,5 +870,31 @@
   
   .tempmail-left-controls {
     justify-content: center;
+  }
+  
+  .tempmail-message-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .tempmail-email-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tempmail-welcome {
+    padding: 40px 15px;
+  }
+  
+  .tempmail-email-container {
+    padding: 20px;
+  }
+  
+  .tempmail-message-card {
+    padding: 20px;
   }
 }

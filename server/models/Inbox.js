@@ -67,16 +67,22 @@ inboxSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index
 
 // Pre-save middleware
 inboxSchema.pre('save', function(next) {
-  if (this.isModified('messages')) {
-    this.messages.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
-  next();
+  console.log(`💾 Saving inbox with ${this.messages.length} messages`);
+  next(); // הסרתי את המיון כי זה יכול לגרום לבעיות
 });
 
 // Methods
 inboxSchema.methods.addMessage = function(messageData) {
-  this.messages.unshift(messageData);
+  // הוספה בהתחלה (unshift במקום push)
+  this.messages.unshift({
+    ...messageData,
+    _id: new mongoose.Types.ObjectId(), // ID ייחודי לכל הודעה
+    date: messageData.date || new Date()
+  });
+  
   this.lastAccessed = new Date();
+  
+  console.log(`📬 Adding message. Total messages now: ${this.messages.length}`);
   return this.save();
 };
 

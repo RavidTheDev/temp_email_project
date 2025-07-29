@@ -44,6 +44,16 @@ app.get("/health", (req, res) => {
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
   console.log("✅ Connected to MongoDB");
+  
+  // בדיקת חיבור תקופתית
+  setInterval(async () => {
+    try {
+      await mongoose.connection.db.admin().ping();
+      console.log("💗 MongoDB connection healthy");
+    } catch (err) {
+      console.error("❌ MongoDB connection lost:", err);
+    }
+  }, 30000); // כל 30 שניות
 })
 .catch((err) => {
   console.error("❌ MongoDB connection error:", err);

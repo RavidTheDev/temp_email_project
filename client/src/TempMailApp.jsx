@@ -1,15 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { Copy, Mail, RefreshCw, Clock, Inbox, Send, Eye, CheckCircle, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Copy, Mail, RefreshCw, Clock, Inbox, Send, Eye, CheckCircle, AlertCircle, Search, Trash2, Code, X } from 'lucide-react';
 import './TempMail.css';
 
 const TempMailApp = () => {
-  const [currentInbox, setCurrentInbox] = useState('');
+  const [currentInbox, setCurrentInbox] = useState(() => {
+    // שחזור מ-sessionStorage ברענון
+    return sessionStorage.getItem('tempmail-inbox') || '';
+  });
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(() => {
+    // שחזור זמן מ-sessionStorage
+    const saved = sessionStorage.getItem('tempmail-expires');
+    if (saved) {
+      const expiresAt = new Date(saved);
+      const now = new Date();
+      return Math.max(0, Math.floor((expiresAt - now) / 1000));
+    }
+    return 0;
+  });
   const [copied, setCopied] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [showHTMLView, setShowHTMLView] = useState(false);
+  const [deletedMessages, setDeletedMessages] = useState(() => {
+    // שחזור הודעות מחוקות מ-sessionStorage
+    const saved = sessionStorage.getItem('tempmail-deleted');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const API_BASE = 'http://localhost:5000';
 
@@ -29,20 +49,40 @@ const TempMailApp = () => {
       setCurrentInbox(data.inbox);
       setMessages([]);
       
+      // ניקוי הודעות מחוקות עבור אימייל חדש
+      setDeletedMessages([]);
+      sessionStorage.removeItem('tempmail-deleted');
+      
+      // שמירה ב-sessionStorage
+      sessionStorage.setItem('tempmail-inbox', data.inbox);
+      sessionStorage.setItem('tempmail-expires', data.expiresAt);
+      
       // חישוב זמן שנותר
       const expiresAt = new Date(data.expiresAt);
       const now = new Date();
       setTimeLeft(Math.max(0, Math.floor((expiresAt - now) / 1000)));
       
     } catch (err) {
-      setError('Failed to create inbox: ' + err.message);
+      console.error('❌ Create inbox error:', err);
+      setError(`שגיאה ביצירת אימייל: ${err.message}`);
+      
+      // נסיון נוסף אחרי 2 שניות
+      if (!err.message.includes('Too many')) {
+        setTimeout(() => {
+          console.log('🔄 Retrying inbox creation...');
+          createInbox();
+        }, 2000);
+      }
     }
     setLoading(false);
   };
 
   // קבלת הודעות
-  const fetchMessages = async () => {
-    if (!currentInbox) return;
+  const fetchMessages = useCallback(async () => {
+    if (!currentInbox) {
+      console.log('🚫 No currentInbox, skipping fetch');
+      return;
+    }
     
     console.log('🔍 Fetching messages for:', currentInbox);
     
@@ -61,8 +101,15 @@ const TempMailApp = () => {
         if (data.messages && Array.isArray(data.messages)) {
           // מיון הודעות לפי תאריך (החדשות ראשון)
           const sortedMessages = [...data.messages].sort((a, b) => new Date(b.date) - new Date(a.date));
-          console.log('📬 Sorted messages:', sortedMessages);
-          setMessages(sortedMessages);
+          
+          // סינון הודעות מחוקות
+          const filteredMessages = sortedMessages.filter(message => {
+            const messageId = `${message.date}-${message.from}-${message.subject}`;
+            return !deletedMessages.includes(messageId);
+          });
+          
+          console.log('📬 Sorted messages:', sortedMessages.length, 'filtered:', filteredMessages.length);
+          setMessages(filteredMessages);
         } else {
           console.log('❌ No messages array found');
           setMessages([]);
@@ -80,11 +127,14 @@ const TempMailApp = () => {
         setCurrentInbox('');
         setMessages([]);
         setError('האימייל פג תוקף או נמחק');
+        // ניקוי sessionStorage
+        sessionStorage.removeItem('tempmail-inbox');
+        sessionStorage.removeItem('tempmail-expires');
       }
     } catch (err) {
       console.error('Failed to fetch messages:', err);
     }
-  };
+  }, [currentInbox, deletedMessages]);
 
   // העתקת כתובת למאגר
   const copyToClipboard = async () => {
@@ -96,6 +146,80 @@ const TempMailApp = () => {
       console.error('Failed to copy:', err);
     }
   };
+
+  // מחיקת הודעה ספציפית (מקומית)
+  const deleteMessage = async (messageIndex) => {
+    if (!currentInbox) return;
+    
+    try {
+      const messageToDelete = messages[messageIndex];
+      if (!messageToDelete) return;
+      
+      // יצירת מזהה ייחודי להודעה
+      const messageId = `${messageToDelete.date}-${messageToDelete.from}-${messageToDelete.subject}`;
+      
+      // הוספה לרשימת הודעות מחוקות
+      const newDeletedMessages = [...deletedMessages, messageId];
+      setDeletedMessages(newDeletedMessages);
+      
+      // שמירה ב-sessionStorage
+      sessionStorage.setItem('tempmail-deleted', JSON.stringify(newDeletedMessages));
+      
+      console.log(`🗑️ Marked message as deleted: ${messageId}`);
+      
+      // סגירת המודל אם ההודעה הנוכחית נמחקה
+      if (selectedMessage && selectedMessage.index === messageIndex) {
+        closeMessage();
+      }
+      
+    } catch (err) {
+      console.error('Failed to delete message:', err);
+    }
+  };
+
+  // פילטור הודעות לפי חיפוש
+  const filteredMessages = messages.filter(message => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      message.subject.toLowerCase().includes(searchLower) ||
+      message.from.toLowerCase().includes(searchLower) ||
+      (message.text && message.text.toLowerCase().includes(searchLower))
+    );
+  });
+
+  // פתיחת הודעה במודל
+  const openMessage = (message, index) => {
+    setSelectedMessage({ ...message, index });
+    // סימון הודעה כנקראה
+    const updatedMessages = [...messages];
+    updatedMessages[index].read = true;
+    setMessages(updatedMessages);
+  };
+
+  // סגירת מודל
+  const closeMessage = () => {
+    setSelectedMessage(null);
+    setShowHTMLView(false);
+  };
+
+  // שחזור הודעות כשהקומפוננט נטען או כש-currentInbox משתנה
+  useEffect(() => {
+    console.log('🔄 useEffect - currentInbox:', currentInbox);
+    
+    if (currentInbox) {
+      console.log('📡 Fetching messages automatically...');
+      // עיכוב קצר כדי לוודא שהקומפוננט נטען
+      const timer = setTimeout(() => {
+        fetchMessages();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    } else {
+      console.log('🚫 No inbox to fetch messages for');
+    }
+  }, [currentInbox, fetchMessages]); // רק כשהcurrentInbox משתנה
 
   // עדכון אוטומטי
   useEffect(() => {
@@ -134,9 +258,9 @@ const TempMailApp = () => {
       <div className="tempmail-content">
         {/* Header */}
         <div className="tempmail-header">
-          <h1 className="tempmail-title">✉️ TempMail Pro</h1>
+          <h1 className="tempmail-title">📧 TempMail Pro</h1>
           <p className="tempmail-subtitle">
-            אימייל זמני מתקדם • מהיר • בטוח • חינמי לחלוטין
+            אימייל זמני מהיר ובטוח • חינמי לחלוטין
           </p>
         </div>
 
@@ -255,10 +379,34 @@ const TempMailApp = () => {
                 <div className="tempmail-messages-header">
                   <Inbox size={24} />
                   תיבת דואר נכנס
-                  <span className="tempmail-messages-count">{messages.length}</span>
+                  <span className="tempmail-messages-count">{filteredMessages.length}</span>
                 </div>
+
+                {/* שדה חיפוש */}
+                {messages.length > 0 && (
+                  <div className="tempmail-search-container">
+                    <div className="tempmail-search-input">
+                      <Search size={20} />
+                      <input
+                        type="text"
+                        placeholder="חפש בהודעות..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="tempmail-search-field"
+                      />
+                      {searchTerm && (
+                        <button 
+                          onClick={() => setSearchTerm('')}
+                          className="tempmail-search-clear"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
                 
-                {messages.length === 0 ? (
+                {filteredMessages.length === 0 ? (
                   <div className="tempmail-no-messages">
                     <Mail className="tempmail-no-messages-icon" />
                     <div className="tempmail-no-messages-title">התיבה ריקה</div>
@@ -269,43 +417,61 @@ const TempMailApp = () => {
                   </div>
                 ) : (
                   <div className="tempmail-messages-list">
-                    {messages.map((message, index) => (
-                      <div 
-                        key={`${message.date}-${index}`}
-                        className="tempmail-message-card"
-                      >
-                        {!message.read && <div className="tempmail-unread-indicator"></div>}
-                        
-                        <div className="tempmail-message-header">
-                          <div className="tempmail-message-info">
-                            <div className="tempmail-message-subject">
-                              📧 {message.subject}
-                            </div>
-                            <div className="tempmail-message-from">
-                              👤 {message.from}
-                            </div>
-                            {message.text && (
-                              <div className="tempmail-message-preview">
-                                {message.text.substring(0, 150)}
-                                {message.text.length > 150 && '...'}
+                    {filteredMessages.map((message, index) => {
+                      const originalIndex = messages.findIndex(m => m === message);
+                      return (
+                        <div 
+                          key={`${message.date}-${originalIndex}`}
+                          className="tempmail-message-card"
+                        >
+                          {!message.read && <div className="tempmail-unread-indicator"></div>}
+                          
+                          <div className="tempmail-message-header">
+                            <div className="tempmail-message-info">
+                              <div className="tempmail-message-subject">
+                                📧 {message.subject}
                               </div>
-                            )}
-                          </div>
-                          <div className="tempmail-message-date">
-                            🕐 {formatDate(message.date)}
+                              <div className="tempmail-message-from">
+                                👤 {message.from}
+                              </div>
+                              {message.text && (
+                                <div className="tempmail-message-preview">
+                                  {message.text.substring(0, 150)}
+                                  {message.text.length > 150 && '...'}
+                                </div>
+                              )}
+                            </div>
+                            <div className="tempmail-message-actions">
+                              <div className="tempmail-message-date">
+                                🕐 {formatDate(message.date)}
+                              </div>
+                              <div className="tempmail-message-buttons">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openMessage(message, originalIndex);
+                                  }}
+                                  className="tempmail-message-btn tempmail-view-btn"
+                                  title="צפה בהודעה"
+                                >
+                                  <Eye size={16} />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteMessage(originalIndex);
+                                  }}
+                                  className="tempmail-message-btn tempmail-delete-btn"
+                                  title="מחק הודעה"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        
-                        {message.text && (
-                          <div className="tempmail-message-content">
-                            <div style={{fontWeight: '600', marginBottom: '10px', color: '#4a5568'}}>
-                              📄 תוכן ההודעה:
-                            </div>
-                            {message.text}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -319,6 +485,63 @@ const TempMailApp = () => {
             </div>
           )}
         </div>
+
+        {/* Message Modal */}
+        {selectedMessage && (
+          <div className="tempmail-modal-overlay" onClick={closeMessage}>
+            <div className="tempmail-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="tempmail-modal-header">
+                <h3 className="tempmail-modal-title">
+                  📧 {selectedMessage.subject}
+                </h3>
+                <div className="tempmail-modal-actions">
+                  {selectedMessage.html && (
+                    <button
+                      onClick={() => setShowHTMLView(!showHTMLView)}
+                      className={`tempmail-modal-btn ${showHTMLView ? 'active' : ''}`}
+                      title={showHTMLView ? 'הצג טקסט' : 'הצג HTML'}
+                    >
+                      <Code size={16} />
+                      {showHTMLView ? 'טקסט' : 'HTML'}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deleteMessage(selectedMessage.index)}
+                    className="tempmail-modal-btn tempmail-delete-btn"
+                    title="מחק הודעה"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                  <button
+                    onClick={closeMessage}
+                    className="tempmail-modal-btn tempmail-close-btn"
+                    title="סגור"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="tempmail-modal-info">
+                <div><strong>מאת:</strong> {selectedMessage.from}</div>
+                <div><strong>תאריך:</strong> {formatDate(selectedMessage.date)}</div>
+              </div>
+              
+              <div className="tempmail-modal-content">
+                {showHTMLView && selectedMessage.html ? (
+                  <div 
+                    className="tempmail-html-content"
+                    dangerouslySetInnerHTML={{ __html: selectedMessage.html }}
+                  />
+                ) : (
+                  <div className="tempmail-text-content">
+                    {selectedMessage.text || 'אין תוכן טקסט בהודעה זו.'}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="tempmail-footer">

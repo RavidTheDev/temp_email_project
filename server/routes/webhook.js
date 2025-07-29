@@ -128,43 +128,73 @@ router.post("/sendgrid", async (req, res) => {
 
 // Webhook גנרי לטסטים
 router.post("/test", async (req, res) => {
-  console.log("🧪 Test webhook received");
-  console.log("Body:", req.body);
+  console.log("🧪 Test webhook received at:", new Date().toISOString());
+  console.log("📝 Request body:", JSON.stringify(req.body, null, 2));
 
   try {
     const { to, from, subject, text, html } = req.body;
 
     if (!to) {
+      console.log("❌ Missing 'to' field");
       return res.status(400).json({ error: "Missing 'to' field" });
     }
 
+    console.log(`🔍 Looking for inbox: ${to}`);
     const inbox = await Inbox.findOne({ address: to });
     
     if (!inbox) {
+      console.log(`❌ Inbox not found: ${to}`);
       return res.status(404).json({ error: "Inbox not found" });
     }
 
+    console.log(`📬 Inbox found! Current messages: ${inbox.messages.length}`);
+
     const newMessage = {
       from: from || "test@example.com",
-      subject: subject || "Test Message",
+      subject: subject || `Test Message ${Date.now()}`,
       text: text || "This is a test message",
       html: html || "",
       date: new Date(),
+      messageId: `test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       read: false
     };
 
-    await inbox.addMessage(newMessage);
+    console.log("📧 Creating new message:", {
+      from: newMessage.from,
+      subject: newMessage.subject,
+      messageId: newMessage.messageId
+    });
 
-    console.log(`✅ Test message added to ${to}`);
+    // שמירה ישירה במקום method
+    inbox.messages.unshift(newMessage);
+    inbox.lastAccessed = new Date();
+    
+    console.log(`💾 Saving inbox with ${inbox.messages.length} messages`);
+    const savedInbox = await inbox.save();
+    
+    console.log(`✅ Inbox saved successfully! Total messages: ${savedInbox.messages.length}`);
+
+    // אימות שההודעה נשמרה
+    const verifyInbox = await Inbox.findOne({ address: to });
+    console.log(`🔍 Verification: inbox now has ${verifyInbox.messages.length} messages`);
+
     res.status(200).json({ 
       success: true,
-      message: "Test email added",
-      inbox: to
+      message: "Test email added successfully",
+      inbox: to,
+      totalMessages: verifyInbox.messages.length,
+      messageId: newMessage.messageId,
+      timestamp: new Date().toISOString()
     });
 
   } catch (error) {
-    console.error("❌ Error in test webhook:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("❌ Webhook error:", error);
+    console.error("Stack trace:", error.stack);
+    res.status(500).json({ 
+      error: "Internal Server Error", 
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
